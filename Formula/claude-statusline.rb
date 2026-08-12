@@ -1,8 +1,8 @@
 class ClaudeStatusline < Formula
   desc "Status line for Claude Code showing account, profile, git, MCP and usage"
   homepage "https://github.com/gabrielbelli/claude-statusline"
-  url "https://github.com/gabrielbelli/claude-statusline/archive/refs/tags/v0.1.1.tar.gz"
-  sha256 "365a6bc1cd5530a9b3b12bea9ebd64f26b214da9303fdae91ce4ed92f4421639"
+  url "https://github.com/gabrielbelli/claude-statusline/archive/refs/tags/v0.1.2.tar.gz"
+  sha256 "838dac8c8ba6d3a113b0356193d0be59bb7bb5848130b3180511b38ff08c5f06"
   license "BSD-2-Clause"
   head "https://github.com/gabrielbelli/claude-statusline.git", branch: "master"
 
