@@ -44,11 +44,11 @@ class ClaudeStatusline < Formula
     # git and account segments all vary by where it runs, and a test that
     # depends on the runner's home directory is a test that fails in CI.
     json = '{"workspace":{"current_dir":"/tmp"},"model":{"display_name":"Opus 5"}}'
-    output = pipe_output("#{bin}/claude-statusline", json, 0)
+    output = pipe_output(bin/"claude-statusline", json, 0)
     assert_match "Opus 5", output
 
     # Every segment is meant to be self-guarding, so empty input must still
     # produce a line and exit 0 rather than erroring.
-    pipe_output("#{bin}/claude-statusline", "{}", 0)
+    pipe_output(bin/"claude-statusline", "{}", 0)
   end
 end
