@@ -4,40 +4,51 @@ cask "calliope" do
 
   url "https://github.com/gabrielbelli/calliope/releases/download/v#{version}/calliope-#{version}-arm64.tar.gz"
   name "Calliope"
-  desc "Read any selection aloud on your own Mac, with a floating reader"
+  desc "Reads selected text aloud locally, in a floating reader"
   homepage "https://github.com/gabrielbelli/calliope"
 
+  depends_on arch: :arm64
   # The capsule is NSGlassEffectView, which arrives in macOS 26. Declared
   # rather than discovered: without this the app installs and then refuses to
   # open, and LaunchServices says only "-10825".
-  depends_on macos: ">= :tahoe"
-  depends_on arch: :arm64
+  depends_on macos: :tahoe
 
   app "Calliope.app"
 
-  postflight do
+  # postflight_steps, not postflight: Homebrew 7 renamed the stanza and the old
+  # name now fails `brew style`. The block takes install-step DSL calls only --
+  # no arbitrary Ruby -- so the two things that have to happen are `run` calls.
+  # jailmachine.rb in this tap still uses the old name; it is GoReleaser output
+  # and changes when GoReleaser does.
+  postflight_steps do
     # AD-HOC SIGNED, SO THE QUARANTINE FLAG HAS TO GO. Nothing here is
     # notarised: the app is built on the machine that uses it and signed with
     # an ad-hoc identity, which macOS accepts for running and refuses for
-    # distributing. brew marks every download com.apple.quarantine, and
+    # distributing. brew marks every download com.apple.quarantine and
     # Gatekeeper reads that flag on first launch -- so left on, it is the
     # "Apple could not verify" wall, and Homebrew 7 removed --no-quarantine as
-    # an escape. Same treatment as the jailmachine cask in this tap.
-    if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
-      system_command "/usr/bin/xattr",
-                     args: ["-dr", "com.apple.quarantine", "#{appdir}/Calliope.app"]
-    end
+    # an escape. Same treatment as jailmachine in this tap.
+    run "/usr/bin/xattr",
+        args: ["-dr", "com.apple.quarantine", "{{appdir}}/Calliope.app"]
+
     # TELL LAUNCHSERVICES IT EXISTS. Measured: until it knows, SMAppService
     # reports notFound for an app sitting in /Applications, so Settings' "Open
     # at login" reads as off and cannot be turned on. Moving a bundle into
-    # place is not something it notices on its own.
-    lsregister = "/System/Library/Frameworks/CoreServices.framework/Frameworks/" \
-                 "LaunchServices.framework/Support/lsregister"
-    system_command lsregister, args: ["-f", "#{appdir}/Calliope.app"] if File.executable?(lsregister)
+    # place is not something it notices on its own. Guarded because the path is
+    # undocumented and has moved between releases before.
+    if_path_exists "/System/Library/Frameworks/CoreServices.framework/Frameworks/" \
+                   "LaunchServices.framework/Support/lsregister" do
+      run "/System/Library/Frameworks/CoreServices.framework/Frameworks/" \
+          "LaunchServices.framework/Support/lsregister",
+          args: ["-f", "{{appdir}}/Calliope.app"]
+    end
   end
 
-  uninstall quit:       "com.gabrielbelli.calliope",
-            launchctl:  "com.gabrielbelli.calliope"
+  # quit only. SMAppService registers the login item under a label it
+  # generates -- application.com.gabrielbelli.calliope.<hash> -- not under the
+  # bundle identifier, so a launchctl stanza naming the identifier would match
+  # nothing and read as though it did. Removing the app is what unregisters it.
+  uninstall quit: "com.gabrielbelli.calliope"
 
   # The runtime directory is logs, the spoken-text queue and a pid file; an
   # install.sh install also left a 337 MB model there. The preferences hold the
