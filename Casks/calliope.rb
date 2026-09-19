@@ -1,6 +1,6 @@
 cask "calliope" do
-  version "0.1.0"
-  sha256 "d3c139d6cb27adaf9ed1f0df1fa02da9000d848d89b22a29b523b0e2b955278c"
+  version "0.1.1"
+  sha256 "362b7696a6aa7bfc42f77f18db175862a84adc1575b70610faf461b05e5be785"
 
   url "https://github.com/gabrielbelli/calliope/releases/download/v#{version}/calliope-#{version}-arm64.tar.gz"
   name "Calliope"
