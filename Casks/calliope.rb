@@ -36,11 +36,19 @@ cask "calliope" do
     # at login" reads as off and cannot be turned on. Moving a bundle into
     # place is not something it notices on its own. Guarded because the path is
     # undocumented and has moved between releases before.
+    #
+    # must_succeed: false, AND THIS FAILED A REAL INSTALL. lsregister answered
+    # -10822 -- "failed to scan ... from spotlight" -- and because the step was
+    # fatal, Homebrew tore down an upgrade that had already put a working app
+    # in place. A convenience is not worth an install: without this the
+    # checkbox reads as off until macOS notices the app by itself, which it
+    # does the first time somebody opens it.
     if_path_exists "/System/Library/Frameworks/CoreServices.framework/Frameworks/" \
                    "LaunchServices.framework/Support/lsregister" do
       run "/System/Library/Frameworks/CoreServices.framework/Frameworks/" \
           "LaunchServices.framework/Support/lsregister",
-          args: ["-f", "{{appdir}}/Calliope.app"]
+          args:         ["-f", "{{appdir}}/Calliope.app"],
+          must_succeed: false
     end
   end
 
