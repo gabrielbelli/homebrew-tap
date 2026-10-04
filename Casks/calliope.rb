@@ -1,6 +1,6 @@
 cask "calliope" do
-  version "0.1.1"
-  sha256 "362b7696a6aa7bfc42f77f18db175862a84adc1575b70610faf461b05e5be785"
+  version "0.2.0"
+  sha256 "8bd68ea4101de3d3d80dc28d8f467d82b4a7c5fb06d2583baad36878fa4c4617"
 
   url "https://github.com/gabrielbelli/calliope/releases/download/v#{version}/calliope-#{version}-arm64.tar.gz"
   name "Calliope"
@@ -14,6 +14,9 @@ cask "calliope" do
   depends_on macos: :tahoe
 
   app "Calliope.app"
+  # The command line travels inside the app, so `calliope` always matches the
+  # player and the local API it talks to; brew links it onto the PATH.
+  binary "#{appdir}/Calliope.app/Contents/Resources/cli/calliope"
 
   # postflight_steps, not postflight: Homebrew 7 renamed the stanza and the old
   # name now fails `brew style`. The block takes install-step DSL calls only --
@@ -77,7 +80,8 @@ cask "calliope" do
 
       open -g /Applications/Calliope.app
 
-    Then select text anywhere and press Option-Command-S.
+    Then select text anywhere and press Option-Command-S. In a terminal,
+    `calliope speak`, `calliope transcribe` and `calliope --help`.
 
     The first press asks for Accessibility permission. There is no way to read
     another application's selection without it, and the app does nothing until
